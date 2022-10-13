@@ -7,10 +7,11 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import LoginComponent from "@/components/LoginComponent";
-import ChatComponent from "@/components/ChatComponent";
-import HeaderComponent from "@/components/HeaderComponent";
+
 import { useAuth } from "@/composables/firebase";
+import LoginComponent from "../components/LoginComponent.vue";
+import ChatComponent from "../components/ChatComponent.vue";
+import HeaderComponent from "../components/HeaderComponent.vue";
 
 export default defineComponent({
   name: "index-component",

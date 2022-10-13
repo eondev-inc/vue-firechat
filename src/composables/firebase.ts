@@ -10,6 +10,7 @@ import {
 import { ref, onUnmounted, computed, Ref } from "vue";
 import Filter from "bad-words";
 import {
+  addDoc,
   collection,
   CollectionReference,
   doc,
@@ -22,6 +23,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
 console.log(process.env.VUE_APP_FIREBASE_APIKEY);
@@ -60,6 +62,7 @@ export function useAuth() {
       router.push({ path: "/", force: true });
     } catch (error) {
       console.error(error);
+      router.push({ path: "/", force: true });
     }
   };
 
@@ -72,18 +75,19 @@ export function useAuth() {
 }
 
 const db: Firestore = getFirestore(app);
-const messagesRef: CollectionReference = collection(db, "message");
-const messagesDocument = doc(messagesRef, "message");
-
-const messageQuery: Query = query(
-  messagesRef,
-  orderBy("createdAt", "desc"),
-  limit(100)
-);
+const messagesRef: CollectionReference = collection(db, "messages");
 
 const filter = new Filter();
 export function useChat() {
   const messages = ref();
+  const { user, isLogin } = useAuth();
+  const { uid }: UserInfo = user.value;
+  const messageQuery: Query = query(
+    messagesRef,
+    where("userUID", "==", uid),
+    orderBy("createdAt", "desc"),
+    limit(100)
+  );
 
   const unsuscribed = onSnapshot(messageQuery, (snapshot) => {
     messages.value = snapshot.docs
@@ -94,20 +98,18 @@ export function useChat() {
   });
 
   onUnmounted(unsuscribed);
-
-  const { user, isLogin } = useAuth();
-  const sendMessage = (text: string) => {
-    if (!isLogin.value) return;
-
+  const sendMessage = async (text: string) => {
     const { displayName, uid, photoURL }: UserInfo = user.value;
-
-    setDoc(messagesDocument, {
+    if (!isLogin.value) return;
+    const docRef = await addDoc(messagesRef, {
       userName: displayName,
       userUID: uid,
       userPhotoUrl: photoURL,
       text: filter.clean(text),
       createdAt: serverTimestamp(),
     });
+
+    console.log("Los dosc" + docRef.id);
   };
   return {
     messages,

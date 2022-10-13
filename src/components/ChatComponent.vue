@@ -18,12 +18,12 @@
           <div class="relative w-full p-6 overflow-y-auto h-96">
             <ul class="space-y-2">
               <li
-                class="flex justify-start"
+                class="flex justify-end"
                 v-for="(msg, index) in messages"
                 :key="'index-' + index"
               >
                 <div
-                  class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow"
+                  class="relative max-w-xl px-4 py-2 text-black bg-gray-200 rounded shadow"
                 >
                   <span class="block">{{ msg.text }}</span>
                 </div>
@@ -75,7 +75,7 @@
               v-model="message"
               required
             />
-            <button @click="sendMessageHere">
+            <button>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-5 h-5 text-gray-500"
@@ -91,7 +91,7 @@
                 />
               </svg>
             </button>
-            <button type="submit">
+            <button type="submit" @click="sendMessageHere">
               <svg
                 class="w-5 h-5 text-gray-500 origin-center transform rotate-90"
                 xmlns="http://www.w3.org/2000/svg"
@@ -118,17 +118,19 @@ export default defineComponent({
     const message = ref("");
     const { messages, sendMessage } = useChat();
     const { user } = useAuth();
+
     return {
       user,
       messages,
-      sendMessageHere: () => { 
-        if (message.value !== '') { 
+      sendMessageHere: () => {
+        if (message.value !== "") {
           sendMessage(message.value);
+          message.value = "";
         }
         return;
       },
       message,
-    },
+    };
   },
 });
 </script>
