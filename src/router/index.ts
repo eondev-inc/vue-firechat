@@ -3,9 +3,9 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "login",
+    name: "index",
     component: () =>
-      import(/* webpackChunkName: "login" */ "@/components/LoginComponent.vue"),
+      import(/* webpackChunkName: "login" */ "@/pages/IndexComponent.vue"),
   },
 ];
 

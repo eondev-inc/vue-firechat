@@ -1,4 +1,4 @@
-import firebase from "firebase/app";
+import { initializeApp } from "firebase/app";
 import "firebase/firestore";
 import {
   Auth,
@@ -23,19 +23,21 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
-
-const app = firebase.initializeApp({
-  apiKey: process.env.FIREBASE_APIKEY,
-  authDomain: process.env.FIREBASE_AUTHDOMAIN,
-  projectId: process.env.FIREBASE_PROJECTID,
-  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
-  appId: process.env.FIREBASE_APPID,
+import { useRouter } from "vue-router";
+console.log(process.env.VUE_APP_FIREBASE_APIKEY);
+const app = initializeApp({
+  apiKey: process.env.VUE_APP_FIREBASE_APIKEY,
+  authDomain: process.env.VUE_APP_FIREBASE_AUTHDOMAIN,
+  projectId: process.env.VUE_APP_FIREBASE_PROJECTID,
+  storageBucket: process.env.VUE_APP_FIREBASE_STORAGEBUCKET,
+  messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGINGSENDERID,
+  appId: process.env.VUE_APP_FIREBASE_APPID,
 });
 const auth: Auth = getAuth();
 
 export function useAuth() {
-  const user: Ref<UserInfo | null> = ref(null);
+  const user = ref();
+  const router = useRouter();
 
   const unsuscribed = auth.onAuthStateChanged((_user) => {
     if (_user !== null) {
@@ -52,7 +54,14 @@ export function useAuth() {
     await signInWithPopup(auth, googleProvider);
   };
 
-  const singOut = () => auth.signOut();
+  const singOut = () => {
+    try {
+      auth.signOut();
+      router.push({ path: "/", force: true });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return {
     isLogin,
@@ -63,11 +72,11 @@ export function useAuth() {
 }
 
 const db: Firestore = getFirestore(app);
-const messagesCollection: CollectionReference = collection(db, "message");
-const messagesDocument = doc(db, "messages", "message");
+const messagesRef: CollectionReference = collection(db, "message");
+const messagesDocument = doc(messagesRef, "message");
 
 const messageQuery: Query = query(
-  messagesCollection,
+  messagesRef,
   orderBy("createdAt", "desc"),
   limit(100)
 );
@@ -87,15 +96,15 @@ export function useChat() {
   onUnmounted(unsuscribed);
 
   const { user, isLogin } = useAuth();
-  const sendMessage = (text) => {
+  const sendMessage = (text: string) => {
     if (!isLogin.value) return;
 
-    const { photoUrl, uid, displayName } = user.value;
+    const { displayName, uid, photoURL }: UserInfo = user.value;
 
     setDoc(messagesDocument, {
       userName: displayName,
-      userId: uid,
-      userPhotoUrl: photoUrl,
+      userUID: uid,
+      userPhotoUrl: photoURL,
       text: filter.clean(text),
       createdAt: serverTimestamp(),
     });

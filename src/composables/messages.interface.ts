@@ -1,7 +1,7 @@
-export class MessageInterface {
+export interface MessageInterface {
   id: string;
   userName: string;
-  userId: string;
+  userUID: string;
   userPhotoUrl: string;
   text: string;
   createdAt: string;
