@@ -1,11 +1,14 @@
 <template>
-  <div class="w-full h-screen flex items-center justify-center bg-indigo-100">
+  <div
+    class="w-full h-screen flex flex-col items-center justify-center bg-slate-100"
+  >
+    <h3>Hola y bienvenido</h3>
     <form @submit.prevent="singIn" class="w-full md:w-1/3 rounded-lg">
       <button
         type="submit"
-        class="w-full py-2 mt-8 rounded-full bg-blue-400 text-gray-100 focus:outline-none"
+        class="w-1/2 py-2 mt-8 rounded-full bg-red-600 text-gray-50 focus:outline-none"
       >
-        Login
+        Login with Google
       </button>
     </form>
   </div>

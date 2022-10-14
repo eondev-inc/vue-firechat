@@ -2,7 +2,7 @@
   <header>
     <!-- Navbar -->
     <nav
-      class="navbar navbar-expand-md shadow-md py-2 bg-lime-100 relative flex items-center w-full justify-between"
+      class="navbar navbar-expand-md shadow-md py-2 bg-slate-100 relative flex items-center w-full justify-between"
     >
       <div class="px-6 w-full flex flex-wrap items-center justify-between">
         <div class="flex items-center">
@@ -41,8 +41,6 @@
                 @click="singOut"
                 class="nav-link block pr-2 lg:px-2 py-2 text-gray-600 hover:text-gray-700 focus:text-gray-700 transition duration-150 ease-in-out bg-orange-200 rounded-md"
                 href="#!"
-                data-mdb-ripple="true"
-                data-mdb-ripple-color="light"
               >
                 Logout
               </button>

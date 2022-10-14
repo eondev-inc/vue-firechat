@@ -1,6 +1,6 @@
 <template lang="">
   <div class="container mx-auto mt-9">
-    <div class="max-w-2xl border rounded">
+    <div class="border rounded h-full">
       <div>
         <div class="w-full">
           <div class="relative flex items-center p-3 border-b border-gray-300">
@@ -41,7 +41,7 @@
                   <img
                     :src="msg.userPhotoUrl"
                     class="object-cover h-8 w-8 rounded-full"
-                    alt="profile-photo"
+                    alt="profile"
                   />
                 </div>
               </li>
