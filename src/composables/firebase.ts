@@ -13,7 +13,6 @@ import {
   addDoc,
   collection,
   CollectionReference,
-  doc,
   Firestore,
   getFirestore,
   limit,
@@ -22,8 +21,6 @@ import {
   Query,
   query,
   serverTimestamp,
-  setDoc,
-  where,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
 console.log(process.env.VUE_APP_FIREBASE_APIKEY);
@@ -38,7 +35,7 @@ const app = initializeApp({
 const auth: Auth = getAuth();
 
 export function useAuth() {
-  const user = ref();
+  const user: Ref<UserInfo | undefined> = ref();
   const router = useRouter();
 
   const unsuscribed = auth.onAuthStateChanged((_user) => {
@@ -59,10 +56,9 @@ export function useAuth() {
   const singOut = () => {
     try {
       auth.signOut();
-      router.push({ path: "/", force: true });
+      window.location.reload();
     } catch (error) {
       console.error(error);
-      router.push({ path: "/", force: true });
     }
   };
 
@@ -80,11 +76,8 @@ const messagesRef: CollectionReference = collection(db, "messages");
 const filter = new Filter();
 export function useChat() {
   const messages = ref();
-  const { user, isLogin } = useAuth();
-  const { uid }: UserInfo = user.value;
   const messageQuery: Query = query(
     messagesRef,
-    where("userUID", "==", uid),
     orderBy("createdAt", "desc"),
     limit(100)
   );
@@ -98,18 +91,23 @@ export function useChat() {
   });
 
   onUnmounted(unsuscribed);
-  const sendMessage = async (text: string) => {
-    const { displayName, uid, photoURL }: UserInfo = user.value;
-    if (!isLogin.value) return;
-    const docRef = await addDoc(messagesRef, {
-      userName: displayName,
-      userUID: uid,
-      userPhotoUrl: photoURL,
-      text: filter.clean(text),
-      createdAt: serverTimestamp(),
-    });
 
-    console.log("Los dosc" + docRef.id);
+  const { user, isLogin } = useAuth();
+  const sendMessage = async (text: string) => {
+    if (!isLogin.value) return;
+    if (user.value !== undefined) {
+      const { displayName, uid, photoURL }: UserInfo = user.value;
+
+      const docRef = await addDoc(messagesRef, {
+        userName: displayName,
+        userUID: uid,
+        userPhotoUrl: photoURL,
+        text: filter.clean(text),
+        createdAt: serverTimestamp(),
+      });
+
+      console.log("Los dosc" + docRef.id);
+    }
   };
   return {
     messages,

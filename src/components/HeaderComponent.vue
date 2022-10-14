@@ -44,7 +44,7 @@
                 data-mdb-ripple="true"
                 data-mdb-ripple-color="light"
               >
-                {{ isLogin ? "Logout" : "Login" }}
+                Logout
               </button>
             </li>
           </ul>
@@ -61,11 +61,12 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "header-component",
   setup() {
-    const { singOut, isLogin } = useAuth();
+    const { singOut, isLogin, user } = useAuth();
 
     return {
       isLogin,
       singOut,
+      user,
     };
   },
 });
