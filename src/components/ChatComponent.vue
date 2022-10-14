@@ -6,10 +6,12 @@
           <div class="relative flex items-center p-3 border-b border-gray-300">
             <img
               class="object-cover w-10 h-10 rounded-full"
-              src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg"
+              :src="user.photoURL"
               alt="username"
             />
-            <span class="block ml-2 font-bold text-gray-600">Emma</span>
+            <span class="block ml-2 font-bold text-gray-600">{{
+              user.displayName
+            }}</span>
             <span
               class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"
             >
@@ -18,14 +20,29 @@
           <div class="relative w-full p-6 overflow-y-auto h-96">
             <ul class="space-y-2">
               <li
-                class="flex justify-start"
+                class="flex"
+                :class="[sameUser(msg) ? 'justify-end' : 'justify-start']"
                 v-for="(msg, index) in messages"
-                :key="'index-' + index"
+                :key="'index-' + msg.id + index"
               >
                 <div
-                  class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow"
+                  :class="[
+                    sameUser(msg)
+                      ? 'flex justify-end mb-4'
+                      : 'flex justify-start mb-4',
+                  ]"
                 >
-                  <span class="block">{{ msg.text }}</span>
+                  <div
+                    :class="[sameUser(msg) ? 'bg-blue-400' : 'bg-gray-400']"
+                    class="mr-2 py-3 px-4 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white"
+                  >
+                    {{ msg.text }}
+                  </div>
+                  <img
+                    :src="msg.userPhotoUrl"
+                    class="object-cover h-8 w-8 rounded-full"
+                    alt="profile-photo"
+                  />
                 </div>
               </li>
             </ul>
@@ -74,8 +91,9 @@
               name="message"
               v-model="message"
               required
+              @keyup.enter="sendMessageHere"
             />
-            <button @click="sendMessageHere">
+            <button>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-5 h-5 text-gray-500"
@@ -91,7 +109,7 @@
                 />
               </svg>
             </button>
-            <button type="submit">
+            <button type="submit" @click="sendMessageHere">
               <svg
                 class="w-5 h-5 text-gray-500 origin-center transform rotate-90"
                 xmlns="http://www.w3.org/2000/svg"
@@ -111,6 +129,7 @@
 </template>
 <script lang="ts">
 import { useAuth, useChat } from "@/composables/firebase";
+import { MessageInterface } from "@/composables/messages.interface";
 import { defineComponent, ref } from "@vue/runtime-core";
 
 export default defineComponent({
@@ -118,17 +137,24 @@ export default defineComponent({
     const message = ref("");
     const { messages, sendMessage } = useChat();
     const { user } = useAuth();
+
     return {
       user,
       messages,
-      sendMessageHere: () => { 
-        if (message.value !== '') { 
+      sendMessageHere: () => {
+        if (message.value !== "") {
           sendMessage(message.value);
+          message.value = "";
         }
         return;
       },
       message,
-    },
+      sameUser: (item: MessageInterface) => {
+        if (user.value !== undefined) {
+          return user.value.uid === item.userUID;
+        }
+      },
+    };
   },
 });
 </script>

@@ -10,9 +10,9 @@ import {
 import { ref, onUnmounted, computed, Ref } from "vue";
 import Filter from "bad-words";
 import {
+  addDoc,
   collection,
   CollectionReference,
-  doc,
   Firestore,
   getFirestore,
   limit,
@@ -21,7 +21,6 @@ import {
   Query,
   query,
   serverTimestamp,
-  setDoc,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
 console.log(process.env.VUE_APP_FIREBASE_APIKEY);
@@ -36,7 +35,7 @@ const app = initializeApp({
 const auth: Auth = getAuth();
 
 export function useAuth() {
-  const user = ref();
+  const user: Ref<UserInfo | undefined> = ref();
   const router = useRouter();
 
   const unsuscribed = auth.onAuthStateChanged((_user) => {
@@ -57,7 +56,7 @@ export function useAuth() {
   const singOut = () => {
     try {
       auth.signOut();
-      router.push({ path: "/", force: true });
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }
@@ -72,18 +71,16 @@ export function useAuth() {
 }
 
 const db: Firestore = getFirestore(app);
-const messagesRef: CollectionReference = collection(db, "message");
-const messagesDocument = doc(messagesRef, "message");
-
-const messageQuery: Query = query(
-  messagesRef,
-  orderBy("createdAt", "desc"),
-  limit(100)
-);
+const messagesRef: CollectionReference = collection(db, "messages");
 
 const filter = new Filter();
 export function useChat() {
   const messages = ref();
+  const messageQuery: Query = query(
+    messagesRef,
+    orderBy("createdAt", "desc"),
+    limit(100)
+  );
 
   const unsuscribed = onSnapshot(messageQuery, (snapshot) => {
     messages.value = snapshot.docs
@@ -96,18 +93,21 @@ export function useChat() {
   onUnmounted(unsuscribed);
 
   const { user, isLogin } = useAuth();
-  const sendMessage = (text: string) => {
+  const sendMessage = async (text: string) => {
     if (!isLogin.value) return;
+    if (user.value !== undefined) {
+      const { displayName, uid, photoURL }: UserInfo = user.value;
 
-    const { displayName, uid, photoURL }: UserInfo = user.value;
+      const docRef = await addDoc(messagesRef, {
+        userName: displayName,
+        userUID: uid,
+        userPhotoUrl: photoURL,
+        text: filter.clean(text),
+        createdAt: serverTimestamp(),
+      });
 
-    setDoc(messagesDocument, {
-      userName: displayName,
-      userUID: uid,
-      userPhotoUrl: photoURL,
-      text: filter.clean(text),
-      createdAt: serverTimestamp(),
-    });
+      console.log("Los dosc" + docRef.id);
+    }
   };
   return {
     messages,
