@@ -48,12 +48,12 @@ export function useAuth() {
 
   const isLogin = computed(() => user.value !== null);
 
-  const singIn = async () => {
+  const signIn = async () => {
     const googleProvider = new GoogleAuthProvider();
     await signInWithPopup(auth, googleProvider);
   };
 
-  const singOut = () => {
+  const signOut = () => {
     try {
       auth.signOut();
       window.location.reload();
@@ -64,8 +64,8 @@ export function useAuth() {
 
   return {
     isLogin,
-    singIn,
-    singOut,
+    signIn,
+    signOut,
     user,
   };
 }

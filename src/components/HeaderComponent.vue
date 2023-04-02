@@ -1,4 +1,4 @@
-<template lang="">
+<template>
   <header>
     <!-- Navbar -->
     <nav
@@ -38,11 +38,8 @@
           <ul class="navbar-nav mr-auto md:flex md:flex-row">
             <li class="nav-item">
               <button
-                @click="singOut"
-                class="nav-link block pr-2 lg:px-2 py-2 text-gray-600 hover:text-gray-700 focus:text-gray-700 transition duration-150 ease-in-out bg-orange-200 rounded-md"
-                href="#!"
-                data-mdb-ripple="true"
-                data-mdb-ripple-color="light"
+                @click="signOut"
+                class="nav-link block pr-2 lg:px-2 py-2 text-gray-600 hover:text-gray-700 focus:text-gray-700 transition duration-150 ease-in-out bg-orange-200 rounded-md cursor-pointer"
               >
                 Logout
               </button>
@@ -61,11 +58,11 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "header-component",
   setup() {
-    const { singOut, isLogin, user } = useAuth();
+    const { signOut, isLogin, user } = useAuth();
 
     return {
       isLogin,
-      singOut,
+      signOut,
       user,
     };
   },
