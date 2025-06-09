@@ -250,7 +250,6 @@ export default defineComponent({
 
     return {
       isLogin,
-      signOut,
       user,
       mobileMenuOpen,
       toggleMobileMenu,

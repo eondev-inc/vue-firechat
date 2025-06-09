@@ -27,11 +27,16 @@ import {
   setDoc,
   updateDoc,
   arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { MessageInterface } from "./messages.interface";
 import { ContactInterface, ChatRoomInterface } from "./chat.interface";
 import { useRouter } from "vue-router";
-console.log(process.env.VUE_APP_FIREBASE_APIKEY);
+
+// Solo mostrar API key en desarrollo
+if (process.env.NODE_ENV === "development") {
+  console.log("Firebase API Key loaded");
+}
 const app = initializeApp({
   apiKey: process.env.VUE_APP_FIREBASE_APIKEY,
   authDomain: process.env.VUE_APP_FIREBASE_AUTHDOMAIN,
@@ -45,24 +50,6 @@ const auth: Auth = getAuth();
 export function useAuth() {
   const user: Ref<UserInfo | null> = ref(null);
   const router = useRouter();
-
-  const unsuscribed = auth.onAuthStateChanged((_user) => {
-    user.value = _user;
-  });
-
-  onUnmounted(unsuscribed);
-
-  const isLogin = computed(() => user.value !== null);
-
-  const signIn = async () => {
-    const googleProvider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, googleProvider);
-
-    // Registrar el usuario en la colección users si es nuevo
-    if (result.user) {
-      await registerUserInFirestore(result.user);
-    }
-  };
 
   // Función para registrar usuario en Firestore
   const registerUserInFirestore = async (user: any) => {
@@ -84,6 +71,24 @@ export function useAuth() {
       console.log("Usuario registrado en Firestore:", user.uid);
     } catch (error) {
       console.error("Error registrando usuario en Firestore:", error);
+    }
+  };
+
+  const unsubscribed = auth.onAuthStateChanged((_user) => {
+    user.value = _user;
+  });
+
+  onUnmounted(unsubscribed);
+
+  const isLogin = computed(() => user.value !== null);
+
+  const signIn = async () => {
+    const googleProvider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, googleProvider);
+
+    // Registrar el usuario en la colección users si es nuevo
+    if (result.user) {
+      await registerUserInFirestore(result.user);
     }
   };
 
@@ -281,7 +286,9 @@ export function useChat() {
 
     try {
       const chatRoomDoc = doc(chatRoomsRef, chatRoomId);
-      const typingUsers = isTyping ? arrayUnion(user.value.uid) : arrayUnion(); // Remover usuario de la lista
+      const typingUsers = isTyping
+        ? arrayUnion(user.value.uid)
+        : arrayRemove(user.value.uid);
 
       await updateDoc(chatRoomDoc, {
         typingUsers: typingUsers,

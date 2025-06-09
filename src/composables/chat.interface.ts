@@ -34,7 +34,6 @@ export interface ExtendedMessageInterface {
   userPhotoUrl: string;
   text: string;
   createdAt: Date;
-  timestamp: string;
   messageType: "text" | "image" | "file";
   status: "sent" | "delivered" | "read";
 }
